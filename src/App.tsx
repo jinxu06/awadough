@@ -4,6 +4,9 @@ import Products from './components/Products'
 import About from './components/About'
 import Footer from './components/Footer'
 import styled from 'styled-components'
+import { CartProvider } from './contexts/CartContext'
+import { LanguageProvider } from './contexts/LanguageContext'
+import { Menu } from './pages/Menu'
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -13,13 +16,18 @@ const AppContainer = styled.div`
 
 function App() {
   return (
-    <AppContainer>
-      <Header />
-      <Hero />
-      <Products />
-      <About />
-      <Footer />
-    </AppContainer>
+    <LanguageProvider>
+      <CartProvider>
+        <AppContainer>
+          <Header />
+          <Hero />
+          <Menu />
+          <Products />
+          <About />
+          <Footer />
+        </AppContainer>
+      </CartProvider>
+    </LanguageProvider>
   )
 }
 
