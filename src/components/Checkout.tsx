@@ -202,6 +202,71 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   `}
 `
 
+const ConfirmationContainer = styled.div`
+  text-align: center;
+  padding: 2rem 0;
+`
+
+const SuccessIcon = styled.div`
+  font-size: 3rem;
+  color: #10b981;
+  margin-bottom: 1rem;
+`
+
+const ConfirmationTitle = styled.h3`
+  color: ${theme.colors.primary};
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+`
+
+const ReferenceNumber = styled.div`
+  background: ${theme.colors.lightGray};
+  border: 2px solid ${theme.colors.accent};
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: ${theme.colors.primary};
+`
+
+const PaymentInstructions = styled.div`
+  background: ${theme.colors.accentLight};
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  text-align: left;
+  
+  h4 {
+    color: ${theme.colors.primary};
+    margin: 0 0 0.5rem 0;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+    color: ${theme.colors.gray};
+    font-size: 0.9rem;
+  }
+`
+
+const PickupDeliveryInfo = styled.div`
+  background: ${theme.colors.lightGray};
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  
+  h4 {
+    color: ${theme.colors.primary};
+    margin: 0 0 0.5rem 0;
+  }
+  
+  p {
+    margin: 0;
+    color: ${theme.colors.gray};
+  }
+`
+
 interface CheckoutProps {
   isOpen: boolean
   onClose: () => void
@@ -223,8 +288,31 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
     address: '',
     notes: ''
   })
+  const [isOrderConfirmed, setIsOrderConfirmed] = useState(false)
+  const [referenceNumber, setReferenceNumber] = useState('')
 
   if (!isOpen) return null
+
+  // Generate a random reference number
+  const generateReferenceNumber = () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const numbers = '0123456789'
+    let reference = 'AWA-'
+    
+    // Add 3 random letters
+    for (let i = 0; i < 3; i++) {
+      reference += letters.charAt(Math.floor(Math.random() * letters.length))
+    }
+    
+    reference += '-'
+    
+    // Add 4 random numbers
+    for (let i = 0; i < 4; i++) {
+      reference += numbers.charAt(Math.floor(Math.random() * numbers.length))
+    }
+    
+    return reference
+  }
 
   // Calculate delivery fee
   const subtotal = getTotalPrice()
@@ -280,139 +368,178 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
     // In a real app, you would send this to your backend
     console.log('Order submitted:', orderDetails)
     
-    // Show success message
-    alert(`Order confirmed! ${deliveryOption === 'pickup' ? 'You can pick up your order on Wednesday.' : 'Your order will be delivered on Thursday.'}`)
+    // Generate reference number and show confirmation
+    const refNumber = generateReferenceNumber()
+    setReferenceNumber(refNumber)
+    setIsOrderConfirmed(true)
     
-    // Clear cart and close modals
+    // Clear cart
     clearCart()
-    onClose()
   }
 
   return (
     <CheckoutOverlay onClick={handleOverlayClick}>
       <CheckoutModal>
         <CheckoutHeader>
-          <CheckoutTitle>Checkout</CheckoutTitle>
+          <CheckoutTitle>{isOrderConfirmed ? 'Order Confirmed!' : 'Checkout'}</CheckoutTitle>
           <CloseButton onClick={onClose} aria-label="Close checkout">
             ×
           </CloseButton>
         </CheckoutHeader>
 
-        <OrderSummary>
-          <SummaryTitle>Order Summary</SummaryTitle>
-          {items.map(item => (
-            <SummaryItem key={item.id}>
-              <span>{item.name} × {item.quantity}</span>
-              <span>£{(item.price * item.quantity).toFixed(2)}</span>
-            </SummaryItem>
-          ))}
-          <SummaryItem>
-            <span>Subtotal:</span>
-            <span>£{subtotal.toFixed(2)}</span>
-          </SummaryItem>
-          {deliveryFee > 0 && (
-            <SummaryItem>
-              <span>Delivery Fee:</span>
-              <span>£{deliveryFee.toFixed(2)}</span>
-            </SummaryItem>
-          )}
-          {deliveryOption === 'delivery' && deliveryFee === 0 && (
-            <SummaryItem style={{ color: theme.colors.accent }}>
-              <span>Free Delivery (orders over £45):</span>
-              <span>£0.00</span>
-            </SummaryItem>
-          )}
-          <TotalAmount>
-            <span>Total:</span>
-            <span>£{finalTotal.toFixed(2)}</span>
-          </TotalAmount>
-        </OrderSummary>
+        {isOrderConfirmed ? (
+          <ConfirmationContainer>
+            <SuccessIcon>✅</SuccessIcon>
+            <ConfirmationTitle>Thank you for your order!</ConfirmationTitle>
+            
+            <ReferenceNumber>
+              <div>Reference Number:</div>
+              <div>{referenceNumber}</div>
+            </ReferenceNumber>
 
-        <DeliveryOptions>
-          <OptionTitle>Delivery Option</OptionTitle>
-          
-          <OptionButton
-            $selected={deliveryOption === 'pickup'}
-            onClick={() => setDeliveryOption('pickup')}
-          >
-            <OptionHeader>Pickup - Wednesday</OptionHeader>
-            <OptionDescription>
-              Collect your order from our bakery at 2 Bissell St, Birmingham B5 7HP
-            </OptionDescription>
-          </OptionButton>
+            <PaymentInstructions>
+              <h4>Payment Instructions</h4>
+              <p>Please use the reference number above when making payment through:</p>
+              <p>• Bank Transfer</p>
+              <p>• PayPal</p>
+              <p>• Cash on collection/delivery</p>
+              <p>• Call us at 07761 901518 for other payment options</p>
+            </PaymentInstructions>
 
-          <OptionButton
-            $selected={deliveryOption === 'delivery'}
-            onClick={() => setDeliveryOption('delivery')}
-          >
-            <OptionHeader>Delivery - Thursday</OptionHeader>
-            <OptionDescription>
-              We'll deliver your fresh order directly to your address. Free delivery on orders over £45, otherwise £5 delivery fee applies.
-            </OptionDescription>
-          </OptionButton>
-        </DeliveryOptions>
+            <PickupDeliveryInfo>
+              <h4>{deliveryOption === 'pickup' ? 'Collection Information' : 'Delivery Information'}</h4>
+              {deliveryOption === 'pickup' ? (
+                <p>Your order will be ready for collection on <strong>Wednesday</strong> at our bakery: 2 Bissell St, Birmingham B5 7HP</p>
+              ) : (
+                <p>Your order will be delivered on <strong>Thursday</strong> to the address you provided.</p>
+              )}
+            </PickupDeliveryInfo>
 
-        <FormSection>
-          <FormGroup>
-            <Label htmlFor="name">Full Name *</Label>
-            <Input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Enter your full name"
-              required
-            />
-          </FormGroup>
+            <div style={{ marginTop: '2rem' }}>
+              <Button $variant="primary" onClick={onClose} style={{ width: '100%' }}>
+                Close
+              </Button>
+            </div>
+          </ConfirmationContainer>
+        ) : (
+          <>
+            <OrderSummary>
+              <SummaryTitle>Order Summary</SummaryTitle>
+              {items.map(item => (
+                <SummaryItem key={item.id}>
+                  <span>{item.name} × {item.quantity}</span>
+                  <span>£{(item.price * item.quantity).toFixed(2)}</span>
+                </SummaryItem>
+              ))}
+              <SummaryItem>
+                <span>Subtotal:</span>
+                <span>£{subtotal.toFixed(2)}</span>
+              </SummaryItem>
+              {deliveryFee > 0 && (
+                <SummaryItem>
+                  <span>Delivery Fee:</span>
+                  <span>£{deliveryFee.toFixed(2)}</span>
+                </SummaryItem>
+              )}
+              {deliveryOption === 'delivery' && deliveryFee === 0 && (
+                <SummaryItem style={{ color: theme.colors.accent }}>
+                  <span>Free Delivery (orders over £45):</span>
+                  <span>£0.00</span>
+                </SummaryItem>
+              )}
+              <TotalAmount>
+                <span>Total:</span>
+                <span>£{finalTotal.toFixed(2)}</span>
+              </TotalAmount>
+            </OrderSummary>
 
-          <FormGroup>
-            <Label htmlFor="phone">Phone Number *</Label>
-            <Input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="Enter your phone number"
-              required
-            />
-          </FormGroup>
+            <DeliveryOptions>
+              <OptionTitle>Delivery Option</OptionTitle>
+              
+              <OptionButton
+                $selected={deliveryOption === 'pickup'}
+                onClick={() => setDeliveryOption('pickup')}
+              >
+                <OptionHeader>Pickup - Wednesday</OptionHeader>
+                <OptionDescription>
+                  Collect your order from our bakery at 2 Bissell St, Birmingham B5 7HP
+                </OptionDescription>
+              </OptionButton>
 
-          {deliveryOption === 'delivery' && (
-            <FormGroup>
-              <Label htmlFor="address">Delivery Address *</Label>
-              <TextArea
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter your full delivery address including postcode"
-                required
-              />
-            </FormGroup>
-          )}
+              <OptionButton
+                $selected={deliveryOption === 'delivery'}
+                onClick={() => setDeliveryOption('delivery')}
+              >
+                <OptionHeader>Delivery - Thursday</OptionHeader>
+                <OptionDescription>
+                  We'll deliver your fresh order directly to your address. Free delivery on orders over £45, otherwise £5 delivery fee applies.
+                </OptionDescription>
+              </OptionButton>
+            </DeliveryOptions>
 
-          <FormGroup>
-            <Label htmlFor="notes">Special Notes (Optional)</Label>
-            <TextArea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              placeholder="Any special instructions or dietary requirements"
-            />
-          </FormGroup>
-        </FormSection>
+            <FormSection>
+              <FormGroup>
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </FormGroup>
 
-        <ActionButtons>
-          <Button $variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button $variant="primary" onClick={handleSubmit}>
-            Confirm Order
-          </Button>
-        </ActionButtons>
+              <FormGroup>
+                <Label htmlFor="phone">Phone Number *</Label>
+                <Input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </FormGroup>
+
+              {deliveryOption === 'delivery' && (
+                <FormGroup>
+                  <Label htmlFor="address">Delivery Address *</Label>
+                  <TextArea
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Enter your full delivery address including postcode"
+                    required
+                  />
+                </FormGroup>
+              )}
+
+              <FormGroup>
+                <Label htmlFor="notes">Special Notes (Optional)</Label>
+                <TextArea
+                  id="notes"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  placeholder="Any special instructions or dietary requirements"
+                />
+              </FormGroup>
+            </FormSection>
+
+            <ActionButtons>
+              <Button $variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button $variant="primary" onClick={handleSubmit}>
+                Confirm Order
+              </Button>
+            </ActionButtons>
+          </>
+        )}
       </CheckoutModal>
     </CheckoutOverlay>
   )

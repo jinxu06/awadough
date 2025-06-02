@@ -67,7 +67,11 @@ const Footer = () => {
         </FooterSection>
         <FooterSection>
           <h3>{t('footer.follow')}</h3>
-          <p>Instagram | {language === 'en' ? 'WeChat' : '微信'} | {language === 'en' ? 'RedNote' : '小红书'}</p>
+          <p>
+            Instagram: @awadough_birmingham<br />
+            {language === 'en' ? 'WeChat' : '微信'}: AwaDoughBakery<br />
+            {language === 'en' ? 'RedNote' : '小红书'}: @阿瓦面包坊
+          </p>
         </FooterSection>
       </FooterContent>
       <Copyright>
