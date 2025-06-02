@@ -5,6 +5,7 @@ import { AddToCartButton } from '../components/AddToCartButton';
 import { ShoppingCart } from '../components/ShoppingCart';
 import { CartIcon } from '../components/CartIcon';
 import { theme } from '../styles/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const MenuContainer = styled.div`
   padding: 4rem 2rem;
@@ -132,6 +133,7 @@ const ProductFooter = styled.div`
 export const Menu: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { t } = useLanguage();
 
   const filteredProducts = selectedCategory === 'all' 
     ? products 
@@ -154,7 +156,7 @@ export const Menu: React.FC = () => {
   return (
     <MenuContainer id="products">
       <MenuHeader>
-        <MenuTitle>Our Menu</MenuTitle>
+        <MenuTitle>{t('products.title')}</MenuTitle>
         <CartIcon onClick={() => setIsCartOpen(true)} />
       </MenuHeader>
 
@@ -163,7 +165,7 @@ export const Menu: React.FC = () => {
           $active={selectedCategory === 'all'}
           onClick={() => setSelectedCategory('all')}
         >
-          All Items
+          {t('products.all')}
         </CategoryTab>
         {categories.map(category => (
           <CategoryTab
@@ -171,7 +173,7 @@ export const Menu: React.FC = () => {
             $active={selectedCategory === category.id}
             onClick={() => setSelectedCategory(category.id)}
           >
-            {category.name}
+            {t(`category.${category.id}`)}
           </CategoryTab>
         ))}
       </CategoryTabs>
@@ -185,8 +187,8 @@ export const Menu: React.FC = () => {
                 <PriceTag>£{product.price.toFixed(2)}</PriceTag>
               </ProductImage>
               <ProductInfo>
-                <ProductName>{product.name}</ProductName>
-                <ProductDescription>{product.description}</ProductDescription>
+                <ProductName>{t(`product.${product.id}`)}</ProductName>
+                <ProductDescription>{t(`product.${product.id}.desc`)}</ProductDescription>
                 <ProductFooter>
                   <AddToCartButton product={product} />
                 </ProductFooter>

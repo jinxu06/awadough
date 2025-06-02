@@ -147,7 +147,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       'product.baguette.desc': '外脆内软',
       'product.rye': '黑麦面包',
       'product.rye.desc': '紧实美味的黑麦面包',
-      'product.croissant': 'ドバター羊角包',
+      'product.croissant': '黄油羊角包',
       'product.croissant.desc': '经典法式黄油羊角包',
       'product.painchocolat': '巧克力可颂',
       'product.painchocolat.desc': '巧克力夹心可颂',
