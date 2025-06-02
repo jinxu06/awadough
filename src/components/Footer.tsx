@@ -52,17 +52,17 @@ const Footer = () => {
       <FooterContent>
         <FooterSection>
           <h3>{t('footer.contact')}</h3>
-          <p>123 Baker Street<br />
-          London, W1U 6RP<br />
-          {language === 'en' ? 'Phone' : '电话'}: +44 20 7123 4567<br />
+          <p>2 Bissell St<br />
+          Birmingham B5 7HP<br />
+          {language === 'en' ? 'Phone' : '电话'}: 07761 901518<br />
           {language === 'en' ? 'Email' : '邮箱'}: hello@awadough.co.uk</p>
         </FooterSection>
         <FooterSection>
-          <h3>{t('footer.hours')}</h3>
+          <h3>{t('footer.ordering')}</h3>
           <ul>
-            <li>{t('footer.weekdays')}</li>
-            <li>{t('footer.saturday')}</li>
-            <li>{t('footer.sunday')}</li>
+            <li>{t('footer.orderDeadline')}</li>
+            <li>{t('footer.pickup')}</li>
+            <li>{t('footer.delivery')}</li>
           </ul>
         </FooterSection>
         <FooterSection>

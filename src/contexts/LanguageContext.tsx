@@ -103,12 +103,12 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       
       // Footer
       'footer.contact': 'Contact',
-      'footer.hours': 'Hours',
+      'footer.ordering': 'Online Ordering',
       'footer.follow': 'Follow Us',
-      'footer.weekdays': 'Monday - Friday: 7am - 7pm',
-      'footer.saturday': 'Saturday: 8am - 6pm',
-      'footer.sunday': 'Sunday: 8am - 4pm',
-      'footer.copyright': '© 2023 Awadough Bakery. All rights reserved.',
+      'footer.orderDeadline': 'Order by Monday 12pm',
+      'footer.pickup': 'Pick up Wednesday',
+      'footer.delivery': 'Delivery Thursday',
+      'footer.copyright': '© 2025 Awadough Bakery. All rights reserved.',
     },
     zh: {
       // Header
@@ -187,11 +187,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       
       // Footer
       'footer.contact': '联系方式',
-      'footer.hours': '营业时间',
+      'footer.ordering': '在线订购',
       'footer.follow': '关注我们',
-      'footer.weekdays': '周一至周五：早7点-晚7点',
-      'footer.saturday': '周六：早8点-晚6点',
-      'footer.sunday': '周日：早8点-下午4点',
+      'footer.orderDeadline': '周一中午12点前下单',
+      'footer.pickup': '周三自取',
+      'footer.delivery': '周四配送',
       'footer.copyright': '© 2023 阿瓦面包坊。保留所有权利。',
     }
   }
