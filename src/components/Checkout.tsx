@@ -226,6 +226,11 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null
 
+  // Calculate delivery fee
+  const subtotal = getTotalPrice()
+  const deliveryFee = deliveryOption === 'delivery' && subtotal < 45 ? 5 : 0
+  const finalTotal = subtotal + deliveryFee
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose()
@@ -259,7 +264,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
         quantity: item.quantity,
         price: item.price
       })),
-      total: getTotalPrice(),
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      total: finalTotal,
       deliveryOption,
       customerInfo: {
         name: formData.name,
@@ -299,9 +306,25 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
               <span>£{(item.price * item.quantity).toFixed(2)}</span>
             </SummaryItem>
           ))}
+          <SummaryItem>
+            <span>Subtotal:</span>
+            <span>£{subtotal.toFixed(2)}</span>
+          </SummaryItem>
+          {deliveryFee > 0 && (
+            <SummaryItem>
+              <span>Delivery Fee:</span>
+              <span>£{deliveryFee.toFixed(2)}</span>
+            </SummaryItem>
+          )}
+          {deliveryOption === 'delivery' && deliveryFee === 0 && (
+            <SummaryItem style={{ color: theme.colors.accent }}>
+              <span>Free Delivery (orders over £45):</span>
+              <span>£0.00</span>
+            </SummaryItem>
+          )}
           <TotalAmount>
             <span>Total:</span>
-            <span>£{getTotalPrice().toFixed(2)}</span>
+            <span>£{finalTotal.toFixed(2)}</span>
           </TotalAmount>
         </OrderSummary>
 
@@ -324,7 +347,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
           >
             <OptionHeader>Delivery - Thursday</OptionHeader>
             <OptionDescription>
-              We'll deliver your fresh order directly to your address
+              We'll deliver your fresh order directly to your address. Free delivery on orders over £45, otherwise £5 delivery fee applies.
             </OptionDescription>
           </OptionButton>
         </DeliveryOptions>
