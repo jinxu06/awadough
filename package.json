@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github06.github.io/awadough",
+  "homepage": "https://jinxu06.github.io/awadough",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
