@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useCart } from '../contexts/CartContext'
+import { Checkout } from './Checkout'
 
 const CartOverlay = styled.div`
   position: fixed;
@@ -172,7 +173,8 @@ interface ShoppingCartProps {
 }
 
 export const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) => {
-  const { items, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart()
+  const { items, updateQuantity, removeFromCart, getTotalPrice } = useCart()
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   if (!isOpen) return null
 
@@ -183,67 +185,73 @@ export const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) =
   }
 
   const handleCheckout = () => {
-    // Here you would typically integrate with a payment processor
-    alert('Checkout functionality would be implemented here!')
-    clearCart()
+    setIsCheckoutOpen(true)
+  }
+
+  const handleCheckoutClose = () => {
+    setIsCheckoutOpen(false)
     onClose()
   }
 
   return (
-    <CartOverlay onClick={handleOverlayClick}>
-      <CartPanel>
-        <CartHeader>
-          <h2>Shopping Cart</h2>
-          <CloseButton onClick={onClose} aria-label="Close cart">
-            ×
-          </CloseButton>
-        </CartHeader>
+    <>
+      <CartOverlay onClick={handleOverlayClick}>
+        <CartPanel>
+          <CartHeader>
+            <h2>Shopping Cart</h2>
+            <CloseButton onClick={onClose} aria-label="Close cart">
+              ×
+            </CloseButton>
+          </CartHeader>
 
-        {items.length === 0 ? (
-          <EmptyCart>
-            <p>Your cart is empty</p>
-          </EmptyCart>
-        ) : (
-          <>
-            {items.map(item => (
-              <CartItem key={item.id}>
-                <ItemImage src={item.image} alt={item.name} />
-                <ItemDetails>
-                  <ItemName>{item.name}</ItemName>
-                  <ItemPrice>${item.price.toFixed(2)} each</ItemPrice>
-                  <QuantityControls>
-                    <QuantityButton
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                    >
-                      -
-                    </QuantityButton>
-                    <Quantity>{item.quantity}</Quantity>
-                    <QuantityButton
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    >
-                      +
-                    </QuantityButton>
-                  </QuantityControls>
-                  <RemoveButton onClick={() => removeFromCart(item.id)}>
-                    Remove
-                  </RemoveButton>
-                </ItemDetails>
-              </CartItem>
-            ))}
+          {items.length === 0 ? (
+            <EmptyCart>
+              <p>Your cart is empty</p>
+            </EmptyCart>
+          ) : (
+            <>
+              {items.map(item => (
+                <CartItem key={item.id}>
+                  <ItemImage src={item.image} alt={item.name} />
+                  <ItemDetails>
+                    <ItemName>{item.name}</ItemName>
+                    <ItemPrice>£{item.price.toFixed(2)} each</ItemPrice>
+                    <QuantityControls>
+                      <QuantityButton
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                      >
+                        -
+                      </QuantityButton>
+                      <Quantity>{item.quantity}</Quantity>
+                      <QuantityButton
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        +
+                      </QuantityButton>
+                    </QuantityControls>
+                    <RemoveButton onClick={() => removeFromCart(item.id)}>
+                      Remove
+                    </RemoveButton>
+                  </ItemDetails>
+                </CartItem>
+              ))}
 
-            <CartTotal>
-              <TotalPrice>
-                <span>Total:</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
-              </TotalPrice>
-              <CheckoutButton onClick={handleCheckout}>
-                Checkout
-              </CheckoutButton>
-            </CartTotal>
-          </>
-        )}
-      </CartPanel>
-    </CartOverlay>
+              <CartTotal>
+                <TotalPrice>
+                  <span>Total:</span>
+                  <span>£{getTotalPrice().toFixed(2)}</span>
+                </TotalPrice>
+                <CheckoutButton onClick={handleCheckout}>
+                  Checkout
+                </CheckoutButton>
+              </CartTotal>
+            </>
+          )}
+        </CartPanel>
+      </CartOverlay>
+      
+      <Checkout isOpen={isCheckoutOpen} onClose={handleCheckoutClose} />
+    </>
   )
 }

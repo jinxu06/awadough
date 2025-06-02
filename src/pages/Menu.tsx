@@ -182,7 +182,7 @@ export const Menu: React.FC = () => {
           return (
             <ProductCard key={product.id}>
               <ProductImage $bgImage={product.image}>
-                <PriceTag>${product.price.toFixed(2)}</PriceTag>
+                <PriceTag>£{product.price.toFixed(2)}</PriceTag>
               </ProductImage>
               <ProductInfo>
                 <ProductName>{product.name}</ProductName>
