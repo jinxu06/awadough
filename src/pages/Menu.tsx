@@ -152,7 +152,7 @@ export const Menu: React.FC = () => {
   }
 
   return (
-    <MenuContainer>
+    <MenuContainer id="products">
       <MenuHeader>
         <MenuTitle>Our Menu</MenuTitle>
         <CartIcon onClick={() => setIsCartOpen(true)} />
