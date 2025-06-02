@@ -1,6 +1,5 @@
 import Header from './components/Header'
 import Hero from './components/Hero'
-import Products from './components/Products'
 import About from './components/About'
 import Footer from './components/Footer'
 import styled from 'styled-components'
@@ -22,7 +21,6 @@ function App() {
           <Header />
           <Hero />
           <Menu />
-          <Products />
           <About />
           <Footer />
         </AppContainer>
