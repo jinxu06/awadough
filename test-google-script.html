@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Apps Script Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-color: #28a745; color: #155724; }
+        .error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        .info { background: #d1ecf1; border-color: #17a2b8; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Google Apps Script Test Tool</h1>
+    
+    <div class="section">
+        <h2>📍 Current Configuration</h2>
+        <div id="config-info"></div>
+    </div>
+    
+    <div class="section">
+        <h2>🧪 Test Your Google Apps Script</h2>
+        <p>This will test if your Google Apps Script is working correctly.</p>
+        
+        <button onclick="testGetRequest()">Test GET Request</button>
+        <button onclick="testPostRequest()">Test POST Request (Sample Order)</button>
+        <button onclick="testFromWebsite()">Test Order from Your Website</button>
+        
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="section">
+        <h2>🔍 Debug Information</h2>
+        <pre id="debug-info">Loading...</pre>
+    </div>
+    
+    <div class="section">
+        <h2>🛠️ Fix Common Issues</h2>
+        <div class="info test-result">
+            <h4>Common Google Apps Script Issues:</h4>
+            <ul>
+                <li><strong>Syntax Error:</strong> Check your script for any typos or missing brackets</li>
+                <li><strong>Permissions:</strong> Make sure the script is deployed with "Anyone" access</li>
+                <li><strong>Sheet ID:</strong> Verify the Google Sheet ID is correct in your script</li>
+                <li><strong>Email:</strong> Make sure the email address in the script is valid</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdeOkNe7Q-dQs1CACHbRqP2m21tSxtUFu_V8iDNXLo0-InrxMENp7sxg3JmzFvl58o/exec";
+        
+        function addResult(type, title, message) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<h4>${title}</h4><pre>${message}</pre>`;
+            results.appendChild(div);
+        }
+        
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.textContent = `
+Environment Variable Check:
+- Script URL: ${SCRIPT_URL}
+- URL Length: ${SCRIPT_URL.length}
+- URL Valid: ${SCRIPT_URL.includes('script.google.com')}
+- Ends with /exec: ${SCRIPT_URL.endsWith('/exec')}
+
+Browser Info:
+- User Agent: ${navigator.userAgent}
+- Current URL: ${window.location.href}
+- Local Storage Available: ${typeof(Storage) !== "undefined"}
+
+Date/Time: ${new Date().toISOString()}
+            `;
+        }
+        
+        function updateConfigInfo() {
+            const configInfo = document.getElementById('config-info');
+            configInfo.innerHTML = `
+                <div class="info test-result">
+                    <strong>Google Apps Script URL:</strong><br>
+                    <code>${SCRIPT_URL}</code>
+                </div>
+            `;
+        }
+        
+        async function testGetRequest() {
+            addResult('info', 'Testing GET Request...', 'Sending GET request to your Google Apps Script...');
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'GET'
+                });
+                
+                const text = await response.text();
+                
+                if (response.ok && !text.includes('Error')) {
+                    addResult('success', 'GET Request Success! ✅', `Response: ${text}`);
+                } else {
+                    addResult('error', 'GET Request Failed ❌', `Status: ${response.status}\\nResponse: ${text.substring(0, 500)}...`);
+                }
+            } catch (error) {
+                addResult('error', 'GET Request Error ❌', `Error: ${error.message}`);
+            }
+        }
+        
+        async function testPostRequest() {
+            addResult('info', 'Testing POST Request...', 'Sending sample order data...');
+            
+            const sampleOrder = {
+                customerName: "Test Customer",
+                customerPhone: "07123456789",
+                customerAddress: "Test Address, Birmingham",
+                customerNotes: "This is a test order",
+                deliveryOption: "delivery",
+                orderItems: "Test Croissant x2, Test Bread x1",
+                subtotal: 10.50,
+                deliveryFee: 0.00,
+                totalAmount: 10.50,
+                referenceNumber: "AWA-TEST-" + Math.floor(Math.random() * 1000),
+                orderDate: new Date().toISOString().split('T')[0],
+                orderTime: new Date().toLocaleTimeString()
+            };
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(sampleOrder)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addResult('success', 'POST Request Success! ✅', `Order submitted successfully!\\nReference: ${sampleOrder.referenceNumber}\\nCheck your Google Sheet and email!`);
+                } else {
+                    addResult('error', 'POST Request Failed ❌', `Error: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                addResult('error', 'POST Request Error ❌', `Error: ${error.message}`);
+            }
+        }
+        
+        async function testFromWebsite() {
+            addResult('info', 'Testing Integration...', 'Opening your website for manual testing...');
+            
+            // Open the website in a new tab
+            window.open('http://localhost:5173/awadough/', '_blank');
+            
+            addResult('warning', 'Manual Test Required 📝', `
+1. Place an order on your website (new tab opened)
+2. Check browser console (F12) for any errors
+3. Check your Google Sheet for the order
+4. Check your email for notifications
+
+If the order appears in Google Sheet and you get an email, it's working perfectly!
+            `);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConfigInfo();
+            updateDebugInfo();
+            
+            // Auto-refresh debug info every 10 seconds
+            setInterval(updateDebugInfo, 10000);
+        });
+    </script>
+</body>
+</html>

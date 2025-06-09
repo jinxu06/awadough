@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '../styles/theme'
 import { useCart } from '../contexts/CartContext'
+import FormspreeOrderService from '../services/formspreeService'
+
+// Create FormspreeOrderService instance
+const formspreeService = new FormspreeOrderService()
 
 const CheckoutOverlay = styled.div`
   position: fixed;
@@ -333,7 +337,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
     }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate required fields
     if (!formData.name.trim() || !formData.phone.trim()) {
       alert('Please fill in your name and phone number.')
@@ -345,36 +349,53 @@ export const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
       return
     }
 
-    // Create order summary
-    const orderDetails = {
-      items: items.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      subtotal: subtotal,
-      deliveryFee: deliveryFee,
-      total: finalTotal,
-      deliveryOption,
-      customerInfo: {
-        name: formData.name,
-        phone: formData.phone,
-        ...(deliveryOption === 'delivery' && { address: formData.address }),
-        ...(formData.notes && { notes: formData.notes })
-      },
-      orderDate: new Date().toISOString()
+    // Generate reference number
+    const refNumber = generateReferenceNumber()
+    
+    // Create order date and time
+    const orderDate = new Date()
+    const orderDateString = orderDate.toISOString().split('T')[0] // YYYY-MM-DD format
+    const orderTimeString = orderDate.toLocaleTimeString('en-GB') // HH:MM:SS format
+
+    // Format order items for submission
+    const formatOrderItems = (items: any[]) => {
+      return items.map(item => `${item.name} x${item.quantity} (£${item.price.toFixed(2)} each)`).join(', ')
     }
 
-    // In a real app, you would send this to your backend
-    console.log('Order submitted:', orderDetails)
-    
-    // Generate reference number and show confirmation
-    const refNumber = generateReferenceNumber()
-    setReferenceNumber(refNumber)
-    setIsOrderConfirmed(true)
-    
-    // Clear cart
-    clearCart()
+    // Prepare order data for Formspree
+    const orderData = {
+      customerName: formData.name,
+      customerPhone: formData.phone,
+      customerAddress: deliveryOption === 'delivery' ? formData.address : undefined,
+      customerNotes: formData.notes || undefined,
+      deliveryOption,
+      orderItems: formatOrderItems(items),
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      totalAmount: finalTotal,
+      referenceNumber: refNumber,
+      orderDate: orderDateString,
+      orderTime: orderTimeString
+    }
+
+    try {
+      // Submit order to Formspree
+      const success = await formspreeService.submitOrder(orderData)
+      
+      if (success) {
+        // Show confirmation
+        setReferenceNumber(refNumber)
+        setIsOrderConfirmed(true)
+        
+        // Clear cart
+        clearCart()
+      } else {
+        alert('There was an issue submitting your order. Please try again or call us at 07761 901518.')
+      }
+    } catch (error) {
+      console.error('Order submission error:', error)
+      alert('There was an issue submitting your order. Please try again or call us at 07761 901518.')
+    }
   }
 
   return (

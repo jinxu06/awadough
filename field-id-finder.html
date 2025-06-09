@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Form Field ID Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .field-mapping {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4285f4;
+        }
+        .field-name {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .field-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .entry-input {
+            width: 200px;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .copy-button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .instructions {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Google Form Field ID Finder</h1>
+    
+    <div class="instructions">
+        <h3>📋 Step-by-Step Instructions:</h3>
+        <ol>
+            <li><strong>Open your Google Form</strong> in another tab/window</li>
+            <li><strong>Click "Preview"</strong> (the eye icon) to see the form as users will see it</li>
+            <li><strong>For each field below</strong>:
+                <ul>
+                    <li>Right-click on the input field in your form</li>
+                    <li>Select "Inspect Element" or "Inspect"</li>
+                    <li>Look for: <code>name="entry.123456789"</code></li>
+                    <li>Copy the number after "entry." and paste it below</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <h2>Enter Your Field IDs:</h2>
+        
+        <div class="field-mapping">
+            <div class="field-name">Customer Name</div>
+            <div class="field-description">Short answer field for customer's full name</div>
+            <input type="text" id="name" class="entry-input" placeholder="entry.123456789">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Customer Phone</div>
+            <div class="field-description">Short answer field for phone number</div>
+            <input type="text" id="phone" class="entry-input" placeholder="entry.987654321">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Customer Address</div>
+            <div class="field-description">Paragraph field for delivery address</div>
+            <input type="text" id="address" class="entry-input" placeholder="entry.456789123">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Customer Notes</div>
+            <div class="field-description">Paragraph field for special instructions</div>
+            <input type="text" id="notes" class="entry-input" placeholder="entry.789123456">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Delivery Option</div>
+            <div class="field-description">Multiple choice: Pickup, Delivery</div>
+            <input type="text" id="delivery" class="entry-input" placeholder="entry.321654987">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Order Items</div>
+            <div class="field-description">Paragraph field for order details</div>
+            <input type="text" id="items" class="entry-input" placeholder="entry.654987321">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Subtotal</div>
+            <div class="field-description">Short answer field for order subtotal</div>
+            <input type="text" id="subtotal" class="entry-input" placeholder="entry.147258369">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Delivery Fee</div>
+            <div class="field-description">Short answer field for delivery cost</div>
+            <input type="text" id="deliveryFee" class="entry-input" placeholder="entry.963852741">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Total Amount</div>
+            <div class="field-description">Short answer field for final total</div>
+            <input type="text" id="total" class="entry-input" placeholder="entry.258147369">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Reference Number</div>
+            <div class="field-description">Short answer field for order reference</div>
+            <input type="text" id="reference" class="entry-input" placeholder="entry.741852963">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Order Date</div>
+            <div class="field-description">Short answer field for order date</div>
+            <input type="text" id="date" class="entry-input" placeholder="entry.369258147">
+        </div>
+
+        <div class="field-mapping">
+            <div class="field-name">Order Time</div>
+            <div class="field-description">Short answer field for order time</div>
+            <input type="text" id="time" class="entry-input" placeholder="entry.852741963">
+        </div>
+
+        <button class="copy-button" onclick="generateEnvFile()">📋 Generate .env File Content</button>
+    </div>
+
+    <div id="result" class="result" style="display: none;">
+        <h3>📄 Copy this to your .env file:</h3>
+        <pre id="envContent"></pre>
+        <button class="copy-button" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+
+    <script>
+        function generateEnvFile() {
+            const fields = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                notes: document.getElementById('notes').value,
+                delivery: document.getElementById('delivery').value,
+                items: document.getElementById('items').value,
+                subtotal: document.getElementById('subtotal').value,
+                deliveryFee: document.getElementById('deliveryFee').value,
+                total: document.getElementById('total').value,
+                reference: document.getElementById('reference').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value
+            };
+
+            const formUrl = "https://docs.google.com/forms/d/1nPsk1f5Okby2csHY_6C0MSwawf_BXOYZj1XrXXi65Ug/formResponse";
+
+            const envContent = `# Google Forms Integration Configuration
+VITE_GOOGLE_FORM_URL=${formUrl}
+
+# Google Form Field IDs
+VITE_FORM_FIELD_NAME=${fields.name}
+VITE_FORM_FIELD_PHONE=${fields.phone}
+VITE_FORM_FIELD_ADDRESS=${fields.address}
+VITE_FORM_FIELD_NOTES=${fields.notes}
+VITE_FORM_FIELD_DELIVERY=${fields.delivery}
+VITE_FORM_FIELD_ITEMS=${fields.items}
+VITE_FORM_FIELD_SUBTOTAL=${fields.subtotal}
+VITE_FORM_FIELD_DELIVERY_FEE=${fields.deliveryFee}
+VITE_FORM_FIELD_TOTAL=${fields.total}
+VITE_FORM_FIELD_REFERENCE=${fields.reference}
+VITE_FORM_FIELD_DATE=${fields.date}
+VITE_FORM_FIELD_TIME=${fields.time}`;
+
+            document.getElementById('envContent').textContent = envContent;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('envContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('✅ Copied to clipboard! Now paste this into your .env file');
+            });
+        }
+    </script>
+</body>
+</html>

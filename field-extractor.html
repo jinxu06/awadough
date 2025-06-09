@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Form Field ID Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d1edff;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #155724;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Google Form Field ID Extractor</h1>
+    
+    <div class="alert">
+        <strong>⚠️ Important:</strong> You need to access the <strong>live/public form</strong>, not the preview!
+    </div>
+
+    <div class="step">
+        <h3>📋 Step 1: Get Your Live Form URL</h3>
+        <p>In your Google Form editor:</p>
+        <ol>
+            <li>Click the <strong>"Send"</strong> button (top right)</li>
+            <li>Copy the link that appears (it should end with <code>/viewform</code>)</li>
+            <li>Open that link in a new tab</li>
+        </ol>
+        <div class="code">
+            Your form URL should look like:<br>
+            https://docs.google.com/forms/d/1nPsk1f5Okby2csHY_6C0MSwawf_BXOYZj1XrXXi65Ug/viewform
+        </div>
+    </div>
+
+    <div class="step">
+        <h3>🔍 Step 2: Extract Field IDs from Live Form</h3>
+        <p>On the <strong>live form page</strong>:</p>
+        <ol>
+            <li>Right-click anywhere and select <strong>"View Page Source"</strong> (or press Ctrl+U)</li>
+            <li>Press <strong>Ctrl+F</strong> to search</li>
+            <li>Search for: <code>entry.</code></li>
+            <li>Copy all the HTML source code and paste it below</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>📄 Step 3: Paste Form Source Code</h3>
+        <textarea id="sourceCode" placeholder="Paste the HTML source code of your live Google Form here..."></textarea>
+        <br>
+        <button onclick="extractFieldIds()">🔍 Extract Field IDs</button>
+        <button onclick="clearText()">🗑️ Clear</button>
+    </div>
+
+    <div id="results" style="display: none;">
+        <h3>✅ Found Field IDs:</h3>
+        <div id="fieldList"></div>
+        
+        <h3>📄 Your .env File Content:</h3>
+        <div class="result" id="envContent"></div>
+        <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+
+    <div class="success">
+        <h3>🎯 Quick Alternative Method:</h3>
+        <p>If the above is too complex, you can also:</p>
+        <ol>
+            <li>Open your live form</li>
+            <li>Right-click on <strong>each input field</strong> individually</li>
+            <li>Select "Inspect Element"</li>
+            <li>Look for <code>name="entry.xxxxxxxxx"</code> in the highlighted code</li>
+        </ol>
+    </div>
+
+    <script>
+        function extractFieldIds() {
+            const sourceCode = document.getElementById('sourceCode').value;
+            
+            if (!sourceCode.trim()) {
+                alert('Please paste the HTML source code first!');
+                return;
+            }
+
+            // Extract all entry field IDs using regex
+            const entryRegex = /name="(entry\.\d+)"/g;
+            const matches = [];
+            let match;
+            
+            while ((match = entryRegex.exec(sourceCode)) !== null) {
+                if (!matches.includes(match[1])) {
+                    matches.push(match[1]);
+                }
+            }
+
+            if (matches.length === 0) {
+                alert('No entry fields found. Make sure you copied from the live form (not preview)!');
+                return;
+            }
+
+            // Display found field IDs
+            const fieldList = document.getElementById('fieldList');
+            fieldList.innerHTML = '<ul>' + matches.map(entry => `<li><code>${entry}</code></li>`).join('') + '</ul>';
+
+            // Generate .env content
+            const formUrl = "https://docs.google.com/forms/d/1nPsk1f5Okby2csHY_6C0MSwawf_BXOYZj1XrXXi65Ug/formResponse";
+            
+            let envContent = `# Google Forms Integration Configuration
+VITE_GOOGLE_FORM_URL=${formUrl}
+
+# Google Form Field IDs (update these with your actual field IDs)
+`;
+
+            const fieldNames = [
+                'VITE_FORM_FIELD_NAME',
+                'VITE_FORM_FIELD_PHONE', 
+                'VITE_FORM_FIELD_ADDRESS',
+                'VITE_FORM_FIELD_NOTES',
+                'VITE_FORM_FIELD_DELIVERY',
+                'VITE_FORM_FIELD_ITEMS',
+                'VITE_FORM_FIELD_SUBTOTAL',
+                'VITE_FORM_FIELD_DELIVERY_FEE',
+                'VITE_FORM_FIELD_TOTAL',
+                'VITE_FORM_FIELD_REFERENCE',
+                'VITE_FORM_FIELD_DATE',
+                'VITE_FORM_FIELD_TIME'
+            ];
+
+            fieldNames.forEach((fieldName, index) => {
+                const entryId = matches[index] || 'entry.REPLACE_ME';
+                envContent += `${fieldName}=${entryId}\n`;
+            });
+
+            envContent += `
+# NOTE: Make sure the field order matches your Google Form:
+# 1. Customer Name
+# 2. Customer Phone  
+# 3. Customer Address
+# 4. Customer Notes
+# 5. Delivery Option
+# 6. Order Items
+# 7. Subtotal
+# 8. Delivery Fee
+# 9. Total Amount
+# 10. Reference Number
+# 11. Order Date
+# 12. Order Time`;
+
+            document.getElementById('envContent').textContent = envContent;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function clearText() {
+            document.getElementById('sourceCode').value = '';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('envContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('✅ Copied to clipboard! Create a .env file and paste this content.');
+            });
+        }
+    </script>
+</body>
+</html>
